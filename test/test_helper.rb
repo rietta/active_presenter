@@ -21,7 +21,7 @@ I18n.backend.store_translations '1337',
       }
     }
   }
-  
+
 ActiveRecord::Schema.define(:version => 0) do
   create_table :users do |t|
     t.boolean  :admin,    :default => false
@@ -29,13 +29,13 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string   :password, :default => ''
     t.datetime :birthday
   end
-  
+
   create_table :accounts do |t|
     t.string :subdomain, :default => ''
     t.string :title,     :default => ''
     t.string :secret,    :default => ''
   end
-  
+
   create_table :addresses do |t|
     t.string :street
   end
@@ -43,7 +43,7 @@ ActiveRecord::Schema.define(:version => 0) do
   create_table :account_infos do |t|
     t.string :info
   end
-  
+
   create_table :histories do |t|
     t.integer  :user_id
     t.string   :comment,   :default => ''
@@ -55,7 +55,7 @@ end
 class User < ActiveRecord::Base
   validates_presence_of :login
   validate :presence_of_password
-  attr_accessible :login, :password, :birthday
+  # attr_accessible :login, :password, :birthday
   attr_accessor   :password_confirmation
 
   def presence_of_password
@@ -77,7 +77,7 @@ end
 
 class SignupPresenter < ActivePresenter::Base
   presents :account, :user
-  attr_protected :account_secret
+  # attr_protected :account_secret
 end
 
 class EndingWithSPresenter < ActivePresenter::Base
@@ -85,15 +85,15 @@ class EndingWithSPresenter < ActivePresenter::Base
 end
 
 class HistoricalPresenter < ActivePresenter::Base
-  presents :user, :history  
-  attr_accessible :history_comment
+  presents :user, :history
+  # attr_accessible :history_comment
 end
 
 class CantSavePresenter < ActivePresenter::Base
   presents :address
-  
+
   before_save :halt
-  
+
   def halt; false; end
 end
 
@@ -107,9 +107,9 @@ end
 
 class AfterSavePresenter < ActivePresenter::Base
   presents :address
-  
+
   after_save :set_street
-  
+
   def set_street
     address.street = 'Some Street'
   end
@@ -121,26 +121,26 @@ end
 
 class CallbackOrderingPresenter < ActivePresenter::Base
   presents :account
-  
+
   before_validation :do_before_validation
   before_save :do_before_save
   after_save :do_after_save
-  
+
   attr_reader :steps
-  
+
   def initialize(params={})
     super
     @steps = []
   end
-  
+
   def do_before_validation
     @steps << :before_validation
   end
-  
+
   def do_before_save
     @steps << :before_save
   end
-  
+
   def do_after_save
     @steps << :after_save
   end
@@ -148,27 +148,27 @@ end
 
 class CallbackCantSavePresenter < ActivePresenter::Base
   presents :account
-  
+
   before_validation :do_before_validation
   before_save :do_before_save
   before_save :halt
   after_save :do_after_save
-  
+
   attr_reader :steps
-  
+
   def initialize(params={})
     super
     @steps = []
   end
-  
+
   def do_before_validation
     @steps << :before_validation
   end
-  
+
   def do_before_save
     @steps << :before_save
   end
-  
+
   def do_after_save
     @steps << :after_save
   end
@@ -180,27 +180,27 @@ end
 
 class CallbackCantValidatePresenter < ActivePresenter::Base
   presents :account
-  
+
   before_validation :do_before_validation
   before_validation :halt
   before_save :do_before_save
   after_save :do_after_save
-  
+
   attr_reader :steps
-  
+
   def initialize(params={})
     super
     @steps = []
   end
-  
+
   def do_before_validation
     @steps << :before_validation
   end
-  
+
   def do_before_save
     @steps << :before_save
   end
-  
+
   def do_after_save
     @steps << :after_save
   end
@@ -211,8 +211,8 @@ class CallbackCantValidatePresenter < ActivePresenter::Base
 end
 
 class HistoricalPresenter < ActivePresenter::Base
-  presents :user, :history  
-  attr_accessible :history_comment
+  presents :user, :history
+  # attr_accessible :history_comment
 end
 
 def hash_for_user(opts = {})

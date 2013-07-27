@@ -5,7 +5,6 @@ module ActivePresenter
     extend  ActiveModel::Callbacks
     extend  ActiveModel::Naming
     extend  ActiveModel::Translation
-    include ActiveModel::MassAssignmentSecurity
     include ActiveModel::Conversion
 
     attr_reader :errors
@@ -21,7 +20,7 @@ module ActivePresenter
     #   class SignupPresenter < ActivePresenter::Base
     #     presents :user, :account
     #   end
-    #  
+    #
     # In the above example, :user will (predictably) become User. If you want to override this behaviour, specify the desired types in a hash, as so:
     #
     #   class PresenterWithTwoAddresses < ActivePresenter::Base
@@ -70,7 +69,7 @@ module ActivePresenter
     def self.human_name(options = {}) # :nodoc:
       defaults = self_and_descendants_from_active_record.map do |klass|
         :"#{klass.name.underscore}"
-      end 
+      end
       defaults << self.name.humanize
       I18n.translate(defaults.shift, {:scope => [:activerecord, :models], :count => 1, :default => defaults}.merge(options))
     end
@@ -84,7 +83,7 @@ module ActivePresenter
     #
     # Both forms can also be mixed together: SignupPresenter.new(:user => User.find(1), :user_login => 'james')
     #   In this case, the login attribute will be updated on the user instance provided.
-    # 
+    #
     # If you don't specify an instance, one will be created by calling Model.new
     #
     def initialize(args = {})
@@ -104,9 +103,8 @@ module ActivePresenter
     def attributes=(attrs)
       return if attrs.nil?
 
-      attrs = attrs.stringify_keys      
+      attrs = attrs.stringify_keys
       multi_parameter_attributes = {}
-      attrs = sanitize_for_mass_assignment(attrs)
 
       attrs.each do |k,v|
         if (base_attribute = k.to_s.split("(").first) != k.to_s
@@ -140,7 +138,7 @@ module ActivePresenter
     def valid?
       validated = false
       errors.clear
-      result = _run_validation_callbacks do
+      result = run_callbacks :validation do
         presented.keys.each do |type|
           presented_inst = send(type)
           next unless save?(type, presented_inst)
@@ -157,14 +155,14 @@ module ActivePresenter
     end
 
     # Save all of the presentables, wrapped in a transaction.
-    # 
+    #
     # Returns true or false based on success.
     #
     def save
       saved = false
       ActiveRecord::Base.transaction do
         if valid?
-          _run_save_callbacks do
+          run_callbacks :save do
             saved = presented.keys.select {|key| save?(key, send(key))}.all? {|key| send(key).save}
             raise ActiveRecord::Rollback unless saved
           end
@@ -176,12 +174,12 @@ module ActivePresenter
     # Save all of the presentables wrapped in a transaction.
     #
     # Returns true on success, will raise otherwise.
-    # 
+    #
     def save!
       saved = false
       ActiveRecord::Base.transaction do
         raise ActiveRecord::RecordInvalid.new(self) unless valid?
-        _run_save_callbacks do
+        run_callbacks :save do
           presented.keys.select {|key| save?(key, send(key))}.all? {|key| send(key).save!}
           saved = true
         end
@@ -218,7 +216,7 @@ module ActivePresenter
     def id # :nodoc:
       nil
     end
-    
+
     def new_record?
       presented_instances.map(&:new_record?).all?
     end
@@ -269,9 +267,7 @@ module ActivePresenter
 
     def attribute_protected?(name)
       presentable = presentable_for(name)
-      return false unless presentable
-      flat_attribute = {flatten_attribute_name(name, presentable) => ''} #remove_att... normally takes a hash, so we use a ''
-      presented[presentable].new.send(:sanitize_for_mass_assignment, flat_attribute).empty?
+      return false if presentable
     end
   end
 end
