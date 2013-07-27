@@ -426,4 +426,15 @@ Expectations do
     u.valid?
   end
 
+  expect true do
+    u = DecoratedUserWithTags.new hash_for_user
+    u.tags = "Tall, Mammal"
+    u.valid?
+  end
+
+  expect true do
+    u = DecoratedUserWithTags.new hash_for_user.merge({tags: "Tall, Mammal"})
+    u.valid?
+  end
+
 end

@@ -8,8 +8,6 @@ module ActivePresenter
     include ActiveModel::Conversion
     include ActiveModel::Validations
 
-    attr_reader :errors
-
     define_model_callbacks :validation, :save
 
     class_attribute :presented, :decorated
