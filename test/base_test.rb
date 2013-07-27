@@ -301,7 +301,7 @@ Expectations do
     end.steps
   end
 
-  expect ActiveModel::Errors.any_instance.to.receive(:clear) do
+  expect ActiveModel::Errors.any_instance.to.receive(:clear).at_least_once() do
     CallbackCantValidatePresenter.new.valid?
   end
 
@@ -355,6 +355,10 @@ Expectations do
     DecoratedUser.new.user
   end
 
+  expect false do
+    DecoratedUser.new.valid?
+  end
+
   expect 'mymockvalue' do
     User.any_instance.stubs(:login).returns('mymockvalue')
     DecoratedUser.new.login
@@ -404,5 +408,22 @@ Expectations do
   end
 
   expect DecoratedUser.new(:user => User.new(hash_for_user)).to.be.save!
+
+  expect false do
+    u = DecoratedUserWithTags.new :user => User.new(hash_for_user)
+    u.valid?
+  end
+
+  expect ["can't be blank"] do
+    u = DecoratedUserWithTags.new :user => User.new(hash_for_user)
+    u.valid?
+    u.errors[:tags]
+  end
+
+  expect true do
+    u = DecoratedUserWithTags.new :user => User.new(hash_for_user)
+    u.tags = "Tall, Mammal"
+    u.valid?
+  end
 
 end

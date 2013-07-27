@@ -78,6 +78,13 @@ class DecoratedUser < ActivePresenter::Base
   decorates :user
 end
 
+class DecoratedUserWithTags < ActivePresenter::Base
+  decorates :user
+  attr_accessor :tags
+
+  validates :tags, presence: true
+end
+
 class SignupPresenter < ActivePresenter::Base
   presents :account, :user
 end

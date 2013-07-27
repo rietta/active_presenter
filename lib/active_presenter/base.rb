@@ -6,6 +6,7 @@ module ActivePresenter
     extend  ActiveModel::Naming
     extend  ActiveModel::Translation
     include ActiveModel::Conversion
+    include ActiveModel::Validations
 
     attr_reader :errors
 
@@ -151,11 +152,14 @@ module ActivePresenter
       presented_attribute?(method_name) ? delegate_message(method_name, *args, &block) : super
     end
 
+    alias_method :itself_valid?, :valid?
+
     # Returns boolean based on the validity of the presentables by calling valid? on each of them.
     #
     def valid?
       validated = false
       errors.clear
+      itself_valid?
       result = run_callbacks :validation do
         presented.keys.each do |type|
           presented_inst = send(type)
