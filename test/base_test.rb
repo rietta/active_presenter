@@ -370,4 +370,39 @@ Expectations do
     u.errors[:login]
   end
 
+  expect ActiveRecord::RecordInvalid do
+    DecoratedUser.new.save!
+  end
+
+  expect ActiveRecord::Base.to.receive(:transaction) do
+    s = DecoratedUser.new
+    s.save
+  end
+
+  expect User.any_instance.to.receive(:save) do
+    s = DecoratedUser.new :user => User.new(hash_for_user)
+    s.save
+  end
+
+  expect DecoratedUser.new.not.to.be.save
+
+  expect ActiveRecord::Rollback do
+    ActiveRecord::Base.stubs(:transaction).yields
+    User.any_instance.stubs(:save).returns(false)
+    s = DecoratedUser.new :user => User.new(hash_for_user)
+    s.save
+  end
+
+  expect ActiveRecord::Base.to.receive(:transaction) do
+    s = DecoratedUser.new(:login => "da", :password => "seekrit")
+    s.save!
+  end
+
+  expect User.any_instance.to.receive(:save!) do
+    s = DecoratedUser.new(:login => "da", :password => "seekrit")
+    s.save!
+  end
+
+  expect DecoratedUser.new(:user => User.new(hash_for_user)).to.be.save!
+
 end
