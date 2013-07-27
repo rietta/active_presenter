@@ -11,8 +11,9 @@ module ActivePresenter
 
     define_model_callbacks :validation, :save
 
-    class_attribute :presented
+    class_attribute :presented, :decorated
     self.presented = {}
+    self.decorated = nil
 
     # Indicates which models are to be presented by this presenter.
     # i.e.
@@ -33,7 +34,7 @@ module ActivePresenter
 
       attr_accessor *types_and_classes.keys
 
-      types_and_classes.keys.each do |t|
+      foo = types_and_classes.keys.each do |t|
         define_method("#{t}_errors") do
           send(t).errors
         end
@@ -41,6 +42,23 @@ module ActivePresenter
         # We must reassign in derrived classes rather than mutating the attribute in Base
         self.presented = self.presented.merge(t => types_and_classes[t])
       end
+      foo
+    end
+
+
+    # Use Presenter as Decorator
+    #
+    # This effectively removes type prefixes on its attributes accessors
+    #
+    #   class DecoratedUser < ActivePresenter::Base
+    #     decorates :user
+    #   end
+    #
+    # In the above example, :user will (predictably) become User.
+    #
+    def self.decorates(type)
+      presents(type)
+      self.decorated = type
     end
 
     def self.human_attribute_name(attribute_key_name, options = {})
@@ -237,6 +255,9 @@ module ActivePresenter
     end
 
     def presentable_for(method_name)
+      if decorated and presented[decorated].method_defined?(method_name)
+        return decorated
+      end
       presented.keys.sort_by { |k| k.to_s.size }.reverse.detect do |type|
         method_name.to_s.starts_with?(attribute_prefix(type))
       end
@@ -252,7 +273,7 @@ module ActivePresenter
     end
 
     def attribute_prefix(type)
-      "#{type}_"
+      decorated == type ? '' : "#{type}_"
     end
 
     def merge_errors(presented_inst, type)
@@ -266,8 +287,7 @@ module ActivePresenter
     end
 
     def attribute_protected?(name)
-      presentable = presentable_for(name)
-      return false if presentable
+      return false if presentable_for(name)
     end
   end
 end

@@ -348,4 +348,26 @@ Expectations do
     p.user_login = 'something_else'
     p.changed?
   end
+
+  # Use Presenter as Decorator
+  # Effectively removes type prefixes on attributes
+  expect User do
+    DecoratedUser.new.user
+  end
+
+  expect 'mymockvalue' do
+    User.any_instance.stubs(:login).returns('mymockvalue')
+    DecoratedUser.new.login
+  end
+
+  expect User.any_instance.to.receive(:login=).with('mymockvalue') do
+    DecoratedUser.new.login = 'mymockvalue'
+  end
+
+  expect ["can't be blank"] do
+    u = DecoratedUser.new
+    u.valid?
+    u.errors[:login]
+  end
+
 end

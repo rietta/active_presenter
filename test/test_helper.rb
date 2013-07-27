@@ -55,7 +55,6 @@ end
 class User < ActiveRecord::Base
   validates_presence_of :login
   validate :presence_of_password
-  # attr_accessible :login, :password, :birthday
   attr_accessor   :password_confirmation
 
   def presence_of_password
@@ -75,9 +74,12 @@ class PresenterWithTwoAddresses < ActivePresenter::Base
   presents :address, :secondary_address => Address
 end
 
+class DecoratedUser < ActivePresenter::Base
+  decorates :user
+end
+
 class SignupPresenter < ActivePresenter::Base
   presents :account, :user
-  # attr_protected :account_secret
 end
 
 class EndingWithSPresenter < ActivePresenter::Base
@@ -86,7 +88,6 @@ end
 
 class HistoricalPresenter < ActivePresenter::Base
   presents :user, :history
-  # attr_accessible :history_comment
 end
 
 class CantSavePresenter < ActivePresenter::Base
@@ -212,7 +213,6 @@ end
 
 class HistoricalPresenter < ActivePresenter::Base
   presents :user, :history
-  # attr_accessible :history_comment
 end
 
 def hash_for_user(opts = {})
