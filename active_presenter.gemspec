@@ -38,4 +38,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<activerecord>, [">= 4.0.0"])
   s.add_development_dependency(%q<expectations>, [">= 2.0.0"])
   s.add_development_dependency(%q<sqlite3>, [">= 1.3.5"])
+  s.add_development_dependency(%q<simplecov>, [">= 0.7.1"])
 end
