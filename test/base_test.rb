@@ -77,6 +77,12 @@ Expectations do
     s.errors.full_messages
   end
 
+  expect ["User login can't be blank"] do
+    s = SignupPresenter.new(:user_password => 'foo', :user_password_confirmation => 'foo')
+    s.valid?
+    s.errors.full_messages
+  end
+
   expect ['c4N n07 83 8L4nK'] do
     old_locale = I18n.locale
     I18n.locale = '1337'
@@ -372,6 +378,12 @@ Expectations do
     u = DecoratedUser.new
     u.valid?
     u.errors[:login]
+  end
+
+  expect ["Login can't be blank"] do
+    u = DecoratedUser.new(:password => 'foo', :password_confirmation => 'foo')
+    u.valid?
+    u.errors.full_messages
   end
 
   expect ActiveRecord::RecordInvalid do

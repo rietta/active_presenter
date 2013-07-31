@@ -33,7 +33,7 @@ module ActivePresenter
 
       attr_accessor *types_and_classes.keys
 
-      foo = types_and_classes.keys.each do |t|
+      types_and_classes.keys.each do |t|
         define_method("#{t}_errors") do
           send(t).errors
         end
@@ -41,7 +41,6 @@ module ActivePresenter
         # We must reassign in derrived classes rather than mutating the attribute in Base
         self.presented = self.presented.merge(t => types_and_classes[t])
       end
-      foo
     end
 
 
@@ -62,7 +61,11 @@ module ActivePresenter
 
     def self.human_attribute_name(attribute_key_name, options = {})
       presentable_type = presented.keys.detect do |type|
-        attribute_key_name.to_s.starts_with?("#{type}_") || attribute_key_name.to_s == type.to_s
+        if decorated == type
+          true
+        else
+          attribute_key_name.to_s.starts_with?("#{type}_") || attribute_key_name.to_s == type.to_s
+        end
       end
       attribute_key_name_without_class = attribute_key_name.to_s.gsub("#{presentable_type}_", "")
 
@@ -71,24 +74,6 @@ module ActivePresenter
       else
         I18n.translate(presentable_type, options.merge(:default => presentable_type.to_s.humanize, :scope => [:activerecord, :models]))
       end
-    end
-
-    # Since ActivePresenter does not descend from ActiveRecord, we need to
-    # mimic some ActiveRecord behavior in order for the ActiveRecord::Errors
-    # object we're using to work properly.
-    #
-    # This problem was introduced with Rails 2.3.4.
-    # Fix courtesy http://gist.github.com/191263
-    def self.self_and_descendants_from_active_record # :nodoc:
-      [self]
-    end
-
-    def self.human_name(options = {}) # :nodoc:
-      defaults = self_and_descendants_from_active_record.map do |klass|
-        :"#{klass.name.underscore}"
-      end
-      defaults << self.name.humanize
-      I18n.translate(defaults.shift, {:scope => [:activerecord, :models], :count => 1, :default => defaults}.merge(options))
     end
 
     # Accepts arguments in two forms. For example, if you had a SignupPresenter that presented User, and Account, you could specify arguments in the following two forms:
