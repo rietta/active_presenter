@@ -126,8 +126,7 @@ class CantSavePresenter < ActivePresenter::Base
   before_save :abort
 
   def abort
-    # throw(:abort) # rails 5
-    false
+    throw(:abort)
   end
 end
 
@@ -208,7 +207,7 @@ class CallbackCantSavePresenter < ActivePresenter::Base
   end
 
   def halt
-    false
+    throw :abort
   end
 end
 
@@ -240,7 +239,7 @@ class CallbackCantValidatePresenter < ActivePresenter::Base
   end
 
   def halt
-    false
+    throw :abort
   end
 end
 
