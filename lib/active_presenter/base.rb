@@ -219,7 +219,9 @@ module ActivePresenter
 
     # We define #id and #new_record? to play nice with form_for(@presenter) in Rails
     def id # :nodoc:
-      nil
+      if decorated
+        presented[decorated].id
+      end
     end
 
     def new_record?
