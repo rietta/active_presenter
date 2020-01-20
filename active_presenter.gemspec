@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
     'test/lint_test.rb',
     'test/test_helper.rb'
   ]
-  s.add_runtime_dependency('activerecord', ['~> 5.1.0'])
+  s.add_runtime_dependency('activerecord', ['> 5.1.0'])
   s.add_development_dependency('rake', ['>= 12.0'])
   s.add_development_dependency('rspec', ['>= 3.0.0'])
   s.add_development_dependency('sqlite3', ['>= 1.3.5'])
